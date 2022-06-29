@@ -1,0 +1,38 @@
+                                                            Automating the k8s infra
+    
+    
+- Creating the Infra using kops
+
+  - Create an Instance to run the kops command
+  - Create an S3 bucket to store the state of the k8s cluster
+  - Create an IAM user to use the access creds to configure the AWS CLI
+  - Store the access keys safely
+    - Access key ID = AKIAWSE7AI6TDYDLECFO
+	- Secret Access Key = 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
+  - Created a hosted zone for subdomain for my domain name and added the nameservers to the domain provider.
+
+- Enter the Instance through SSH
+- Generate a SSH Key     = $ ssh-keygen
+- Install the aws-cli    = $ sudo apt update && sudo apt install awscli -y
+- Configure the awscli and give the access key and secret access key  = $ aws configure (after this provide access key, secret access key, region, output format)
+- Install the kubectl and kops tools
+
+kubectl :-
+     - $ curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+	 - $ chmod +x ./kubectl
+	 - $ sudo mv kubectl /usr/local/bin/
+	 
+kops :-
+     - $ curl -LO https://github.com/kubernetes/kops/releases/download/$(curl -s https://api.github.com/repos/kubernetes/kops/releases/latest | grep tag_name | cut -d '"' -f 4)/kops-linux-amd64
+	 - $ chmod +x kops-linux-amd64
+	 - $ sudo mv kops-linux-amd64 /usr/local/bin/kops
+	 
+- After downloading the files we have to create the cluster
+     - $ kops create cluster --name=realits.cnssure.ml --state=s3://cns-kops-state --zones=us-east-1a,us-east-1b --node-count=2 --node-size=t3.small --master-size=t3.medium --dns-zone=realits.cnssure.ml --node-volume-size=8 --master-volume-size=8
+	     This command will configure the cluster and store the configurations in the s3 bucket but for creating the cluster we have to update the kops configuration
+     - $ kops update cluster --name realits.cnssure.ml --state=s3://cns-kops-state --yes --admin
+	     After this the cluster will be up and running
+		 
+	 - $ kops delete cluster --name realits.cnssure.ml --state=s3://cns-kops-state --yes
+	     This command is used to delete the cluster
+		 
